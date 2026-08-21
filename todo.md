@@ -14,3 +14,4 @@
 - [x] Verify the dashboard build and tests, capture visual evidence, and create a delivery checkpoint.
 - [x] Add explicit offline/mock integration mode that never attempts to call an unreachable cloud-to-local FastAPI endpoint.
 - [x] Document local development configuration so a user can run the dashboard and FastAPI service together against `http://localhost:8000`.
+- [x] Export the verified dashboard source to a dedicated private GitHub repository and confirm the remote URL.
