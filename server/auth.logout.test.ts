@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import * as db from "./db";
 import { appRouter } from "./routers";
 import { COOKIE_NAME } from "../shared/const";
 import type { TrpcContext } from "./_core/context";
@@ -42,8 +43,13 @@ function createAuthContext(): { ctx: TrpcContext; clearedCookies: CookieCall[] }
 }
 
 describe("auth.logout", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("clears the session cookie and reports success", async () => {
     const { ctx, clearedCookies } = createAuthContext();
+    const auditEvent = vi.spyOn(db, "recordAuditEvent").mockResolvedValue();
     const caller = appRouter.createCaller(ctx);
 
     const result = await caller.auth.logout();
@@ -58,5 +64,10 @@ describe("auth.logout", () => {
       httpOnly: true,
       path: "/",
     });
+    expect(auditEvent).toHaveBeenCalledWith(expect.objectContaining({
+      entityType: "session",
+      eventType: "logout",
+      userId: 1,
+    }));
   });
 });

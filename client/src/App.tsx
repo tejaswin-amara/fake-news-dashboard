@@ -4,17 +4,27 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/Home";
+import DashboardLayout from "./components/DashboardLayout";
+import AnalyzePage from "./pages/AnalyzePage";
+import ApiKeysPage from "./pages/ApiKeysPage";
+import DriftPage from "./pages/DriftPage";
+import HealthPage from "./pages/HealthPage";
+import HistoryPage from "./pages/HistoryPage";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <DashboardLayout>
+      <Switch>
+        <Route path={"/"} component={AnalyzePage} />
+        <Route path={"/history"} component={HistoryPage} />
+        <Route path={"/drift"} component={DriftPage} />
+        <Route path={"/health"} component={HealthPage} />
+        <Route path={"/api-keys"} component={ApiKeysPage} />
+        <Route path={"/404"} component={NotFound} />
+        <Route component={NotFound} />
+      </Switch>
+    </DashboardLayout>
   );
 }
 

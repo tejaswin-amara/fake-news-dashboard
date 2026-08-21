@@ -21,15 +21,18 @@ import {
 } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
+import { Activity, ChartNoAxesCombined, HeartPulse, KeyRound, LogOut, PanelLeft, ScanSearch } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Page 1", path: "/" },
-  { icon: Users, label: "Page 2", path: "/some-path" },
+  { icon: ScanSearch, label: "Analyze", path: "/" },
+  { icon: ChartNoAxesCombined, label: "History", path: "/history" },
+  { icon: Activity, label: "Drift", path: "/drift" },
+  { icon: HeartPulse, label: "System health", path: "/health" },
+  { icon: KeyRound, label: "API keys", path: "/api-keys" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -58,20 +61,22 @@ export default function DashboardLayout({
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
-          <div className="flex flex-col items-center gap-6">
-            <h1 className="text-2xl font-semibold tracking-tight text-center">
-              Sign in to continue
-            </h1>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Access to this dashboard requires authentication. Continue to launch the login flow.
+      <div className="paper-grid flex min-h-screen items-center justify-center bg-background p-6">
+        <div className="data-card flex w-full max-w-md flex-col items-center gap-8 rounded-2xl border border-border bg-card p-9 text-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sidebar text-sidebar-primary">
+              <ScanSearch className="h-6 w-6" />
+            </div>
+            <p className="text-xs font-bold tracking-[0.18em] text-muted-foreground">VERITAS / ML OPERATIONS</p>
+            <h1 className="text-3xl font-bold tracking-tight">Evidence starts here.</h1>
+            <p className="max-w-sm text-sm leading-6 text-muted-foreground">
+              Sign in to analyze articles, review privacy-safe metadata, and monitor your detection service.
             </p>
           </div>
           <Button
             onClick={() => startLogin()}
             size="lg"
-            className="w-full shadow-lg hover:shadow-xl transition-all"
+            className="w-full bg-primary shadow-lg transition-all hover:bg-primary/90"
           >
             Sign in
           </Button>
@@ -154,30 +159,32 @@ function DashboardLayoutContent({
       <div className="relative" ref={sidebarRef}>
         <Sidebar
           collapsible="icon"
-          className="border-r-0"
+          className="border-r-0 bg-sidebar text-sidebar-foreground"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-16 justify-center">
+          <SidebarHeader className="h-20 justify-center border-b border-sidebar-border">
             <div className="flex items-center gap-3 px-2 transition-all w-full">
               <button
                 onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors hover:bg-sidebar-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
                 aria-label="Toggle navigation"
               >
                 <PanelLeft className="h-4 w-4 text-muted-foreground" />
               </button>
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-semibold tracking-tight truncate">
-                    Navigation
-                  </span>
+                  <div className="min-w-0">
+                    <span className="block truncate text-sm font-extrabold tracking-[0.12em] text-sidebar-primary">VERITAS</span>
+                    <span className="block truncate text-[10px] font-medium tracking-[0.14em] text-sidebar-foreground/55">DETECTION DESK</span>
+                  </div>
                 </div>
               ) : null}
             </div>
           </SidebarHeader>
 
-          <SidebarContent className="gap-0">
-            <SidebarMenu className="px-2 py-1">
+          <SidebarContent className="gap-0 pt-4">
+            <p className="px-5 pb-2 text-[10px] font-bold tracking-[0.16em] text-sidebar-foreground/45 group-data-[collapsible=icon]:hidden">WORKSPACE</p>
+            <SidebarMenu className="px-3 py-1">
               {menuItems.map(item => {
                 const isActive = location === item.path;
                 return (
@@ -186,10 +193,10 @@ function DashboardLayoutContent({
                       isActive={isActive}
                       onClick={() => setLocation(item.path)}
                       tooltip={item.label}
-                      className={`h-10 transition-all font-normal`}
+                      className={`h-10 rounded-lg font-medium transition-all ${isActive ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary" : "text-sidebar-foreground/76 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
                     >
                       <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
+                        className={`h-4 w-4 ${isActive ? "text-sidebar-primary-foreground" : ""}`}
                       />
                       <span>{item.label}</span>
                     </SidebarMenuButton>
@@ -199,20 +206,20 @@ function DashboardLayoutContent({
             </SidebarMenu>
           </SidebarContent>
 
-          <SidebarFooter className="p-3">
+          <SidebarFooter className="border-t border-sidebar-border p-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <Avatar className="h-9 w-9 border shrink-0">
-                    <AvatarFallback className="text-xs font-medium">
+                <button className="flex w-full items-center gap-3 rounded-lg px-1 py-1 text-left transition-colors hover:bg-sidebar-accent group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring">
+                  <Avatar className="h-9 w-9 shrink-0 border border-sidebar-border">
+                    <AvatarFallback className="bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground">
                       {user?.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                    <p className="text-sm font-medium truncate leading-none">
+                    <p className="truncate text-sm font-medium leading-none">
                       {user?.name || "-"}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate mt-1.5">
+                    <p className="mt-1.5 truncate text-xs text-sidebar-foreground/55">
                       {user?.email || "-"}
                     </p>
                   </div>
@@ -240,9 +247,9 @@ function DashboardLayoutContent({
         />
       </div>
 
-      <SidebarInset>
+      <SidebarInset className="bg-background">
         {isMobile && (
-          <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
+          <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
               <div className="flex items-center gap-3">
@@ -255,7 +262,7 @@ function DashboardLayoutContent({
             </div>
           </div>
         )}
-        <main className="flex-1 p-4">{children}</main>
+        <main className="min-h-screen flex-1 p-4 sm:p-7">{children}</main>
       </SidebarInset>
     </>
   );
