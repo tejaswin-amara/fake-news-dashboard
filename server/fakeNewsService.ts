@@ -17,8 +17,8 @@ export async function predictArticle(input: { text: string; title?: string }): P
   if (getIntegrationMode() === "offline") return { artifactVersion: "offline", label: "unavailable", modelName: "Model service disabled", mode: "offline", probabilityFake: null, probabilityReal: null, requestId: null };
   const response = await fetchFastApi("/predict", { body: JSON.stringify({ text: input.text, title: input.title ?? "" }), method: "POST" });
   if (!response.ok) throw new Error(`FastAPI prediction request failed with status ${response.status}.`);
-  const payload = asRecord(await response.json()); const labelName = asString(payload.label_name, "unavailable"); const label: PredictionLabel = labelName === "fake" || labelName === "real" ? labelName : "unavailable";
-  return { artifactVersion: asString(payload.artifact_version, "unknown"), label, modelName: asString(payload.model_name, "unknown"), mode: "live", probabilityFake: asProbability(payload.probability_fake), probabilityReal: asProbability(payload.probability_real), requestId: response.headers.get("X-Request-ID") ?? asString(payload.request_id, "") || null };
+  const payload = asRecord(await response.json()); const labelName = asString(payload.label_name, "unavailable"); const label: PredictionLabel = labelName === "fake" || labelName === "real" ? labelName : "unavailable"; const headerRequestId = response.headers.get("X-Request-ID"); const payloadRequestId = asString(payload.request_id, "");
+  return { artifactVersion: asString(payload.artifact_version, "unknown"), label, modelName: asString(payload.model_name, "unknown"), mode: "live", probabilityFake: asProbability(payload.probability_fake), probabilityReal: asProbability(payload.probability_real), requestId: headerRequestId || payloadRequestId || null };
 }
 export async function getHealthSnapshot(): Promise<HealthSnapshot> {
   if (getIntegrationMode() === "offline") return { health: "offline", inferenceQueueDepth: null, queueDepth: null, rateLimiterState: "offline", ready: "offline" };
